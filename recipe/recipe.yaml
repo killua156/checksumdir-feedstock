@@ -1,0 +1,62 @@
+schema_version: 1
+
+context:
+  version: "1.3.0"
+
+package:
+  name: checksumdir
+  version: ${{ version }}
+
+source:
+  url: https://files.pythonhosted.org/packages/c4/cb/854df78940f24f099b2e2877dd4f32b9cae0c6bba3f2854bc6fc91ed5c6a/checksumdir-${{ version }}.tar.gz
+  sha256: 11693641be49defbfdfb13612a7fd70ce1acd5401db74105f8c486fd72046540
+  patches:
+    - patches/0001-declare-the-poetry-build-backend.patch
+
+build:
+  number: 0
+  noarch: python
+  script: ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  python:
+    entry_points:
+      - checksumdir = checksumdir.cli:main
+
+requirements:
+  host:
+    - python ${{ python_min }}.*
+    - pip
+    - poetry-core >=1.0.0
+  run:
+    - python >=${{ python_min }},<4.0
+
+tests:
+  - python:
+      imports:
+        - checksumdir
+      pip_check: true
+      python_version:
+        - ${{ python_min }}.*
+        - "*"
+  - script:
+      - checksumdir --help
+      - python -c "import checksumdir; assert checksumdir.__version__ == '${{ version }}', checksumdir.__version__"
+    requirements:
+      run:
+        - python ${{ python_min }}.*
+
+about:
+  homepage: https://github.com/cakepietoast/checksumdir
+  repository: https://github.com/cakepietoast/checksumdir
+  license: MIT
+  license_file: LICENSE.txt
+  summary: Compute a single hash of the file contents of a directory
+  description: |
+    checksumdir hashes the contents of a directory into one digest, taking
+    only file contents into account and ignoring filenames, so two trees with
+    the same data hash the same. Available as a library through dirhash and
+    as a command line tool.
+
+extra:
+  recipe-maintainers:
+    - bmcconeghy
+    - asford

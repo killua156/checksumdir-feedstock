@@ -1,0 +1,24 @@
+Subject: [PATCH] Declare the poetry build backend
+
+pyproject.toml has no [build-system] table, so PEP 518 falls back to
+setuptools' legacy backend, which cannot read [tool.poetry]. Building that way
+yields a wheel with no version and no entry points:
+
+  Successfully installed checksumdir-0.0.0
+
+__init__.py reads its own version back out of the installed metadata, so this
+matters at runtime, not just cosmetically.
+
+--- a/pyproject.toml	2026-10-02 15:22:45
++++ b/pyproject.toml	2026-10-02 15:22:56
+@@ -30,4 +30,8 @@
+ isort = "^5.13.0"
+ 
+ [tool.poetry.scripts]
+-checksumdir = 'checksumdir.cli:main'
+\ No newline at end of file
++checksumdir = 'checksumdir.cli:main'
++
++[build-system]
++requires = ["poetry-core>=1.0.0"]
++build-backend = "poetry.core.masonry.api"
